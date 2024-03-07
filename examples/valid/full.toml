@@ -61,7 +61,7 @@ test = "bla"
 [environments]
 test = {features = ["test"], solve-group = "test"}
 prod = {features = ["prod"], solve-group = "test"}
-lint = "lint"
+lint = ["lint"]
 
 [activation]
 scripts = ["activate.sh", "deactivate.sh"]
