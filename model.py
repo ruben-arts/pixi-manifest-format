@@ -27,14 +27,17 @@ class StrictBaseModel(BaseModel):
 ###################
 # Project section #
 ###################
-
+class ChannelInlineTable(StrictBaseModel):
+    channel: NonEmptyStr | AnyHttpUrl = Field(description="The channel the packages needs to be fetched from")
+    priority: int | None = Field(None, description="The priority of the channel")
+Channel = NonEmptyStr | ChannelInlineTable
 
 class Project(StrictBaseModel):
-    name: NonEmptyStr = Field(description="The name of the project")
-    version: NonEmptyStr | None = Field(None, description="The version of the project")
+    name: NonEmptyStr = Field(description="The name of the project, we advice to use the name of the repository")
+    version: NonEmptyStr | None = Field(None, description="The version of the project, we advice to use semver", examples=["1.2.3"])
     description: NonEmptyStr | None = Field(None, description="A short description of the project")
-    authors: list[NonEmptyStr] | None = Field(None, description="The authors of the project")
-    channels: list[NonEmptyStr] | None = Field(
+    authors: list[NonEmptyStr] | None = Field(None, description="The authors of the project", examples=["John Doe <j.doe@prefix.dev>"])
+    channels: list[Channel] = Field(
         None, description="The conda channels that can be used in the project"
     )
     platforms: list[NonEmptyStr] = Field(description="The platforms that the project supports")
@@ -110,9 +113,9 @@ TaskName = NonEmptyStr
 
 
 class TaskInlineTable(StrictBaseModel):
-    cmd: NonEmptyStr | None = Field(None, description="The command to run the task")
+    cmd: list[NonEmptyStr] | NonEmptyStr | None = Field(None, description="The command to run the task")
     cwd: PathNoBackslash | None = Field(None, description="The working directory to run the task")
-    depends_on: list[NonEmptyStr] | None = Field(
+    depends_on: list[NonEmptyStr]| NonEmptyStr | None = Field(
         None, description="The tasks that this task depends on"
     )
 
@@ -121,21 +124,21 @@ class TaskInlineTable(StrictBaseModel):
 # System requirements #
 #######################
 class LibcFamily(StrictBaseModel):
-    family: NonEmptyStr | None = Field(None, description="The family of the libc, e.g. glibc, musl")
-    version: float | NonEmptyStr | None = Field(None, description="The version of the libc")
+    family: NonEmptyStr | None = Field(None, description="The family of the libc", examples=["glibc", "musl"])
+    version: float | NonEmptyStr | None = Field(None, description="The version of libc")
 
 
 class SystemRequirements(StrictBaseModel):
     linux: PositiveFloat | NonEmptyStr | None = Field(
         None, description="The minimum version of the linux kernel"
     )
-    unix: bool | NonEmptyStr | None = Field(None, description="Whether the project supports unix")
+    unix: bool | NonEmptyStr | None = Field(None, description="Whether the project supports unix", examples=["true"])
     libc: LibcFamily | float | NonEmptyStr | None = Field(
         None, description="The minimum version of glibc"
     )
     cuda: float | NonEmptyStr | None = Field(None, description="The minimum version of cuda")
     archspec: NonEmptyStr | None = Field(None, description="The achitecture the project supports")
-
+    macos: PositiveFloat | NonEmptyStr | None = Field(None, description="The minimum version of macos")
 
 #######################
 # Environment section #
@@ -192,7 +195,7 @@ class Target(StrictBaseModel):
 # Feature section #
 ###################
 class Feature(StrictBaseModel):
-    channels: list[NonEmptyStr] | None = Field(
+    channels: list[Channel] | None = Field(
         None, description="The conda channels that can be used in the feature"
     )
     platforms: list[NonEmptyStr] | None = Field(

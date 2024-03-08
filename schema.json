@@ -28,6 +28,44 @@
       "title": "Activation",
       "type": "object"
     },
+    "ChannelInlineTable": {
+      "additionalProperties": false,
+      "properties": {
+        "channel": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "format": "uri",
+              "minLength": 1,
+              "type": "string"
+            }
+          ],
+          "description": "The channel the packages needs to be fetched from",
+          "title": "Channel"
+        },
+        "priority": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The priority of the channel",
+          "title": "Priority"
+        }
+      },
+      "required": [
+        "channel"
+      ],
+      "title": "ChannelInlineTable",
+      "type": "object"
+    },
     "Environment": {
       "additionalProperties": false,
       "properties": {
@@ -73,8 +111,15 @@
           "anyOf": [
             {
               "items": {
-                "minLength": 1,
-                "type": "string"
+                "anyOf": [
+                  {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  {
+                    "$ref": "#/$defs/ChannelInlineTable"
+                  }
+                ]
               },
               "type": "array"
             },
@@ -290,7 +335,11 @@
             }
           ],
           "default": null,
-          "description": "The family of the libc, e.g. glibc, musl",
+          "description": "The family of the libc",
+          "examples": [
+            "glibc",
+            "musl"
+          ],
           "title": "Family"
         },
         "version": {
@@ -307,7 +356,7 @@
             }
           ],
           "default": null,
-          "description": "The version of the libc",
+          "description": "The version of libc",
           "title": "Version"
         }
       },
@@ -372,7 +421,7 @@
       "additionalProperties": false,
       "properties": {
         "name": {
-          "description": "The name of the project",
+          "description": "The name of the project, we advice to use the name of the repository",
           "minLength": 1,
           "title": "Name",
           "type": "string"
@@ -388,7 +437,10 @@
             }
           ],
           "default": null,
-          "description": "The version of the project",
+          "description": "The version of the project, we advice to use semver",
+          "examples": [
+            "1.2.3"
+          ],
           "title": "Version"
         },
         "description": {
@@ -420,24 +472,27 @@
           ],
           "default": null,
           "description": "The authors of the project",
+          "examples": [
+            "John Doe <j.doe@prefix.dev>"
+          ],
           "title": "Authors"
         },
         "channels": {
-          "anyOf": [
-            {
-              "items": {
+          "default": null,
+          "description": "The conda channels that can be used in the project",
+          "items": {
+            "anyOf": [
+              {
                 "minLength": 1,
                 "type": "string"
               },
-              "type": "array"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "description": "The conda channels that can be used in the project",
-          "title": "Channels"
+              {
+                "$ref": "#/$defs/ChannelInlineTable"
+              }
+            ]
+          },
+          "title": "Channels",
+          "type": "array"
         },
         "platforms": {
           "description": "The platforms that the project supports",
@@ -617,6 +672,9 @@
           ],
           "default": null,
           "description": "Whether the project supports unix",
+          "examples": [
+            "true"
+          ],
           "title": "Unix"
         },
         "libc": {
@@ -669,6 +727,24 @@
           "default": null,
           "description": "The achitecture the project supports",
           "title": "Archspec"
+        },
+        "macos": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0.0,
+              "type": "number"
+            },
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The minimum version of macos",
+          "title": "Macos"
         }
       },
       "title": "SystemRequirements",
@@ -819,6 +895,13 @@
         "cmd": {
           "anyOf": [
             {
+              "items": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
               "minLength": 1,
               "type": "string"
             },
@@ -852,6 +935,10 @@
                 "type": "string"
               },
               "type": "array"
+            },
+            {
+              "minLength": 1,
+              "type": "string"
             },
             {
               "type": "null"
